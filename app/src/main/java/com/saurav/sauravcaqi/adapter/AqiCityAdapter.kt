@@ -17,24 +17,23 @@ class AqiCityAdapter(private val context: Context) : RecyclerView.Adapter<AqiCit
   private var list = arrayListOf(RvCityUpdateItem()) // table header item.
   private var recentUpdate = System.currentTimeMillis()
   private val TAG = "bharat"
-  
-  // UI relevant data
+  private var selectedIndex = -1
   private val MAX_TIME_SERIES = 30 // items. (~ 2sec)
   
-  // city: 105dp width
-  
-  // for shared animation we need views too, & next page needs data to show.
-  private var callBack: ((item: RvCityUpdateItem?, card: AqiCityCardBinding) -> Unit)? = null
-  
-  fun attachCallback(gc: (item: RvCityUpdateItem?, card: AqiCityCardBinding) -> Unit) {
-    this.callBack = gc
-  }
+  var callBack: ((item: RvCityUpdateItem?, showChart: Boolean) -> Unit)? = null
+  var subscription: ((history: ArrayList<HistoryItem>?, city: String) -> Unit)? = null
   
   fun updateList(incomingSocketYield: ArrayList<AQIItem>?) {
     recentUpdate = System.currentTimeMillis() / 1000
     incomingSocketYield?.let {
       val items = transformList(incomingSocketYield)
       list = items
+      
+      if (selectedIndex > -1)
+        list[selectedIndex]?.let {
+          subscription?.let { it1 -> it1(it?.past, it?.city ?: "") }
+        }
+      
       notifyDataSetChanged()
     }
   }
@@ -86,8 +85,19 @@ class AqiCityAdapter(private val context: Context) : RecyclerView.Adapter<AqiCit
           binding.tvLastUpdated.text = MyUtils.lastUpdated(recentUpdate, tLastUpdated)
         }
         
+        binding.root.setBackgroundColor(ContextCompat.getColor(context, if (selectedIndex == position) R.color.purple_200 else R.color.white))
+        
+        
         binding.root.setOnClickListener {
-          callBack?.let { it(data, binding) }
+          if (selectedIndex != position) {
+            if (selectedIndex != -1)
+              notifyItemChanged(selectedIndex)
+            selectedIndex = position
+          } else {
+            selectedIndex = -1
+          }
+          notifyItemChanged(position)
+          callBack?.let { it(data, selectedIndex != -1) }
         }
       }
       
