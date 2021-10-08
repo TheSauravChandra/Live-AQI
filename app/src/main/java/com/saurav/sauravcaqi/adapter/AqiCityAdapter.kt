@@ -11,6 +11,7 @@ import com.saurav.sauravcaqi.bean.HistoryItem
 import com.saurav.sauravcaqi.bean.RvCityUpdateItem
 import com.saurav.sauravcaqi.databinding.AqiCityCardBinding
 import com.saurav.sauravcaqi.utils.MyUtils
+import com.saurav.sauravcaqi.utils.MyUtils.Companion.getAQIcolor
 import com.saurav.sauravcaqi.utils.MyUtils.Companion.roundOffDecimal
 
 class AqiCityAdapter(private val context: Context) : RecyclerView.Adapter<AqiCityAdapter.ViewHolder>() {
@@ -26,16 +27,15 @@ class AqiCityAdapter(private val context: Context) : RecyclerView.Adapter<AqiCit
   fun updateList(incomingSocketYield: ArrayList<AQIItem>?) {
     recentUpdate = System.currentTimeMillis() / 1000
     incomingSocketYield?.let {
-      val items = transformList(incomingSocketYield)
-      list = items
-      
-      if (selectedIndex > -1)
-        list[selectedIndex]?.let {
-          subscription?.let { it1 -> it1(it?.past, it?.city ?: "") }
-        }
-      
-      notifyDataSetChanged()
+      list = transformList(incomingSocketYield)
     }
+    
+    if (selectedIndex > -1 && selectedIndex < list.size)
+      list[selectedIndex].apply {
+        subscription?.let { it(past, city ?: "") }
+      }
+    
+    notifyDataSetChanged()
   }
   
   private fun transformList(items: ArrayList<AQIItem>): ArrayList<RvCityUpdateItem> {
@@ -76,12 +76,16 @@ class AqiCityAdapter(private val context: Context) : RecyclerView.Adapter<AqiCit
       if (position == 0) {
         binding.tvCity.text = "City"
         binding.tvCurrentAQI.text = "Current AQI"
+        binding.tvCurrentAQI.background = ContextCompat.getDrawable(context, R.drawable.bg_cell)
+        binding.tvCurrentAQI.setBackgroundColor(ContextCompat.getColor(context, R.color.teal_150))
         binding.tvLastUpdated.text = "Last Updated"
         binding.root.setBackgroundColor(ContextCompat.getColor(context, R.color.teal_150))
+        binding.root.setOnClickListener {}
       } else {
         data?.run {
           binding.tvCity.text = city ?: ""
           binding.tvCurrentAQI.text = currentAQI?.let { roundOffDecimal(it) }?.toString() ?: ""
+          binding.tvCurrentAQI.setBackgroundColor(context getAQIcolor (currentAQI?.toInt() ?: 0))
           binding.tvLastUpdated.text = MyUtils.lastUpdated(recentUpdate, tLastUpdated)
         }
         
@@ -98,6 +102,11 @@ class AqiCityAdapter(private val context: Context) : RecyclerView.Adapter<AqiCit
           }
           notifyItemChanged(position)
           callBack?.let { it(data, selectedIndex != -1) }
+          
+          if (selectedIndex > -1)
+            list[selectedIndex]?.let {
+              subscription?.let { it1 -> it1(it?.past, it?.city ?: "") }
+            }
         }
       }
       

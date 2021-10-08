@@ -1,17 +1,23 @@
 package com.saurav.sauravcaqi.socket
 
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.saurav.sauravcaqi.bean.AQIItem
+import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import java.lang.reflect.Type
 
 
-class MySocketListener(private val cb: (data: ArrayList<AQIItem>?, t: Long) -> Unit) : WebSocketListener() {
+class MySocketListener(private val cb: (data: ArrayList<AQIItem>?, t: Long) -> Unit, private val closed: () -> Unit) : WebSocketListener() {
   private val gson = Gson()
   private val TAG = "bharat"
+  private var isSocketConnected = MutableLiveData<Boolean>(false)
+  fun isSocketStatus(): LiveData<Boolean> = isSocketConnected
+  var error = ""
   
   private fun sendBackData(data: String?) {
     data?.let {
@@ -40,8 +46,26 @@ class MySocketListener(private val cb: (data: ArrayList<AQIItem>?, t: Long) -> U
     {"city":"Jaipur","aqi":141.6453990026219},
     {"city":"Lucknow","aqi":76.1595337060258}]
      */
-    
     sendBackData(text)
+  }
+  
+  override fun onClosed(webSocket: WebSocket?, code: Int, reason: String?) {
+    super.onClosed(webSocket, code, reason)
+    reason?.let { error = it }
+    isSocketConnected.postValue(false)
+    closed()
+  }
+  
+  override fun onFailure(webSocket: WebSocket?, t: Throwable?, response: Response?) {
+    super.onFailure(webSocket, t, response)
+    t?.message?.let { error = it }
+    isSocketConnected.postValue(false)
+    closed()
+  }
+  
+  override fun onOpen(webSocket: WebSocket?, response: Response?) {
+    super.onOpen(webSocket, response)
+    isSocketConnected.postValue(true)
   }
   
 }

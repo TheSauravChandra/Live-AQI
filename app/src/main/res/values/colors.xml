@@ -9,4 +9,12 @@
   <color name="teal_700">#FF018786</color>
   <color name="black">#FF000000</color>
   <color name="white">#FFFFFFFF</color>
+  
+  <color name="aqi_good">#55a84f</color>
+  <color name="aqi_satisfactory">#a3c853</color>
+  <color name="aqi_moderate">#fff833</color>
+  <color name="aqi_poor">#f29c33</color>
+  <color name="aqi_very_poor">#e93f33</color>
+  <color name="aqi_severe">#af2d24</color>
+
 </resources>
