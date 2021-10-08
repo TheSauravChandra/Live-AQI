@@ -18,7 +18,6 @@ import com.saurav.sauravcaqi.adapter.AqiCityAdapter
 import com.saurav.sauravcaqi.bean.HistoryItem
 import com.saurav.sauravcaqi.socket.MySocketListener
 import com.saurav.sauravcaqi.utils.Constants
-import com.saurav.sauravcaqi.utils.Constants.ERR1_SOCKET
 import com.saurav.sauravcaqi.utils.MyUtils.Companion.availInternet
 import com.saurav.sauravcaqi.utils.MyUtils.Companion.toast
 import kotlinx.android.synthetic.main.activity_main.*
@@ -39,7 +38,7 @@ class MainActivity : AppCompatActivity() {
   private var listener: MySocketListener? = null
   private var webSocket: WebSocket? = null
   private var sn: Snackbar? = null
-  private var dialog :AlertDialog?=null
+  private var dialog: AlertDialog? = null
   
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -86,37 +85,38 @@ class MainActivity : AppCompatActivity() {
   
   private fun initialiseWebSocket() {
     request = Request.Builder().url(Constants.WEB_SOCKET_URL).build()
-    listener = MySocketListener({ data, t ->
+    listener = MySocketListener { data, t ->
       lifecycleScope.launch(Main) {
         if (loading.visibility == View.VISIBLE)
           loading.visibility = View.GONE
+        
         adapter?.updateList(data)
       }
-    }) {
+    }
+  
+    listener?.onSocketDown = { // Failed to fetch
       lifecycleScope.launch(Main) {
+        // update time stamps
         adapter?.updateList(null)
+  
+        // snackbar check
+        if (!(dialog?.isShowing ?: false) && !availInternet() && sn?.duration != Snackbar.LENGTH_INDEFINITE) { // dialog not showing & net off & snackbar not already showing.
+          sn = Snackbar.make(findViewById(android.R.id.content), "🔁 Reconnecting: Please check your Internet connection...", Snackbar.LENGTH_INDEFINITE)
+          sn?.view?.setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.aqi_moderate))
+          sn?.show()
+        }
       }
-      
+  
       lifecycleScope.launch(IO) {
         delay(1000)
-        webSocket = client.newWebSocket(request, listener)
+        webSocket = client.newWebSocket(request, listener) // re init network
       }
     }
-    listener?.isSocketStatus()?.observe(this, {
-      if (!it) {
-        
-        
-        when (listener?.error ?: "") {
-          ERR1_SOCKET -> {
-            sn = Snackbar.make(findViewById(android.R.id.content), "🔁 Please check net connection...", Snackbar.LENGTH_INDEFINITE)
-            sn?.view?.setBackgroundColor(ContextCompat.getColor(this, R.color.aqi_moderate))
-            sn?.show()
-          }
-        }
-        
-      } else {
+    
+    listener?.uponSocketLiveAgain = {
+      lifecycleScope.launch(Main) {
         sn?.dismiss()
-        if(sn!=null) {
+        if (sn != null) {
           sn = Snackbar.make(findViewById(android.R.id.content), "😍 Back Online!", Snackbar.LENGTH_SHORT)
           sn?.view?.setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.aqi_good))
           sn?.show()
@@ -124,18 +124,18 @@ class MainActivity : AppCompatActivity() {
           dialog?.cancel()
         }
       }
-    })
+    }
     
     initNtwConnection()
   }
   
-  private fun initNtwConnection(){
-    if(!availInternet()){
+  private fun initNtwConnection() {
+    if (!availInternet()) {
       askTurnOnInternet()
     }
     
-    if(webSocket==null) { // auto polling for net.
-        webSocket = client.newWebSocket(request, listener)
+    if (webSocket == null) { // auto polling for net.
+      webSocket = client.newWebSocket(request, listener)
     }
   }
   

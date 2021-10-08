@@ -16,7 +16,7 @@ import com.saurav.sauravcaqi.utils.MyUtils.Companion.roundOffDecimal
 
 class AqiCityAdapter(private val context: Context) : RecyclerView.Adapter<AqiCityAdapter.ViewHolder>() {
   private var list = arrayListOf(RvCityUpdateItem()) // table header item.
-  private var recentUpdate = System.currentTimeMillis()
+  private var recentUpdate = System.currentTimeMillis() / 1000
   private val TAG = "bharat"
   private var selectedIndex = -1
   private val MAX_TIME_SERIES = 30 // items. (~ 2sec)
