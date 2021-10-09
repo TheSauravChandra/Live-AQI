@@ -79,6 +79,7 @@ class AqiCityAdapter(private val context: Context) : RecyclerView.Adapter<AqiCit
       if (position == 0) {
         binding.tvCity.text = "City"
         binding.tvCurrentAQI.text = "Current AQI"
+        binding.tvCurrentAQI.textSize = 16f
         binding.tvCurrentAQI.background = ContextCompat.getDrawable(context, R.drawable.bg_cell)
         binding.tvLastUpdated.text = "Last Updated"
         binding.root.setBackgroundColor(ContextCompat.getColor(context, R.color.teal_150))
@@ -87,7 +88,7 @@ class AqiCityAdapter(private val context: Context) : RecyclerView.Adapter<AqiCit
         data?.run {
           binding.tvCity.text = city ?: ""
           binding.tvCurrentAQI.text = currentAQI?.let { roundOffDecimal(it) }?.toString() ?: ""
-
+          binding.tvCurrentAQI.textSize = 20f
           val colors = past?.subList(0, min((past?.size ?: 0), MAX_GRADIENT_SERIES))?.map{ it ->
             context getAQIcolor (it.aqi?.toInt()?:0)
           }?.toIntArray()

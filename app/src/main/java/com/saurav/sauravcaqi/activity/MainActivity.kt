@@ -1,6 +1,7 @@
 package com.saurav.sauravcaqi.activity
 
 import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.transition.Fade
 import android.transition.Transition
@@ -144,6 +145,18 @@ class MainActivity : AppCompatActivity() {
     supportActionBar?.hide()
     card.visibility = View.GONE
     loading.visibility = View.VISIBLE
+    
+    vSpectrum.background = GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,
+      intArrayOf(
+        R.color.aqi_good,
+        R.color.aqi_satisfactory,
+        R.color.aqi_moderate,
+        R.color.aqi_poor,
+        R.color.aqi_very_poor,
+        R.color.aqi_severe
+      ).map { ContextCompat.getColor(this, it) }.toIntArray()
+    )
+    
   }
   
   private fun hideLoadingIfVisible() {
@@ -151,13 +164,13 @@ class MainActivity : AppCompatActivity() {
       loading.visibility = View.GONE
   }
   
-  private fun handleSocketDown(){
+  private fun handleSocketDown() {
     listener?.onSocketDown = { // Failed to fetch
       // update UI from failed fetch
       lifecycleScope.launch(Main) {
         // update time stamps of data to old.
         adapter?.updateList(null)
-      
+        
         // snackbar for "gone offline".
         if (!(dialog?.isShowing ?: false) && !availInternet() && sn?.duration != Snackbar.LENGTH_INDEFINITE) { // dialog not showing & net off & snackbar not already showing.
           sn = Snackbar.make(findViewById(android.R.id.content), "🔁 Reconnecting: Please check your Internet connection...", Snackbar.LENGTH_INDEFINITE)
@@ -165,7 +178,7 @@ class MainActivity : AppCompatActivity() {
           sn?.show()
         }
       }
-    
+      
       // retry establishing network
       lifecycleScope.launch(IO) {
         delay(1000)
@@ -174,7 +187,7 @@ class MainActivity : AppCompatActivity() {
     }
   }
   
-  private fun handleSocketLiveAgain(){
+  private fun handleSocketLiveAgain() {
     listener?.uponSocketLiveAgain = { // connection revive.
       lifecycleScope.launch(Main) {
         // back online! (when using app & net went off)
