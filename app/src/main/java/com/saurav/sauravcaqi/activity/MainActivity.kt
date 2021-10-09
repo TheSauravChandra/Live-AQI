@@ -1,5 +1,6 @@
 package com.saurav.sauravcaqi.activity
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AlertDialog
@@ -55,15 +56,46 @@ class MainActivity : AppCompatActivity() {
       history?.map {
         Entry((now - (it.t ?: now)).toFloat(), it.aqi?.toFloat() ?: 0f)
       }?.let {
-        data = LineData(LineDataSet(it, "$city AQI"))
+        data = LineData(LineDataSet(it, "$city AQI").apply {
+          color = Color.WHITE
+          valueTextColor = Color.WHITE
+          titleColor = Color.WHITE
+        }).apply {
+          setValueTextColor(Color.WHITE)
+          titleColor = Color.WHITE
+        }
       }
       description = Description().apply {
         text = "Live AQI Details for $city"
+        textColor = Color.WHITE
       }
+      
       xAxis.enableAxisLineDashedLine(15f,10f,5f)
       xAxis.isEnabled = true
       xAxis.labelCount = 7
+      xAxis.gridColor = Color.WHITE
+      xAxis.axisLineColor = Color.WHITE
+      xAxis.textColor = Color.WHITE
       xAxis.valueFormatter = AQIchartXaxisFormatter()
+      
+      axisLeft.apply {
+        axisLineColor = Color.WHITE
+        titleColor = Color.WHITE
+        zeroLineColor = Color.WHITE
+        textColor = Color.WHITE
+      }
+      
+      axisRight.apply {
+        axisLineColor = Color.WHITE
+        titleColor = Color.WHITE
+        zeroLineColor = Color.WHITE
+        textColor = Color.WHITE
+      }
+      
+      legend.textColor = Color.WHITE
+      
+//      animator = Anim
+      
       setTouchEnabled(false)
       setPinchZoom(false)
       notifyDataSetChanged()
@@ -73,7 +105,7 @@ class MainActivity : AppCompatActivity() {
   
   private fun initRV() {
     adapter.callBack = { item, showChart ->
-      lineChart.visibility = if (showChart) View.VISIBLE else View.INVISIBLE
+      card.visibility = if (showChart) View.VISIBLE else View.INVISIBLE
     }
     
     adapter.subscription = { history, city ->
@@ -86,7 +118,7 @@ class MainActivity : AppCompatActivity() {
   
   private fun initUI() {
     supportActionBar?.hide()
-    lineChart.visibility = View.GONE
+    card.visibility = View.GONE
     loading.visibility = View.VISIBLE
   }
   
