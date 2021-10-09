@@ -38,9 +38,11 @@ class MyUtils {
           "A minute ago"
         }
         else -> {
-          val sdf = SimpleDateFormat("HH:mm:ss a")
-          val resultdate = Date(tLastSec * 1000)
-          sdf.format(resultdate)
+          val sdf = SimpleDateFormat("hh:mm a")
+          sdf.timeZone = TimeZone.getTimeZone("IST").apply {
+            rawOffset = (5*60+30)*60*1000 // +5:30 GMT Delhi
+          }
+          sdf.format(Date(tLastSec * 1000 ))
         }
       }
       
@@ -51,6 +53,21 @@ class MyUtils {
       val df = DecimalFormat("#.##")
       df.roundingMode = RoundingMode.CEILING
       return df.format(number).toDouble()
+    }
+    
+    @JvmStatic
+    infix fun Context.getAQIcolor(aqi: Int): Int {
+      return ContextCompat.getColor(
+        this, when {
+          aqi in 0..50 -> R.color.aqi_good
+          aqi in 51..100 -> R.color.aqi_satisfactory
+          aqi in 101..200 -> R.color.aqi_moderate
+          aqi in 201..300 -> R.color.aqi_poor
+          aqi in 301..400 -> R.color.aqi_very_poor
+          aqi in 401..500 -> R.color.aqi_severe
+          else -> R.color.purple_700 // danger!
+        }
+      )
     }
     
   }

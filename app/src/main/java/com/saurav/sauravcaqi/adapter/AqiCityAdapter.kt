@@ -1,6 +1,7 @@
 package com.saurav.sauravcaqi.adapter
 
 import android.content.Context
+import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
@@ -13,6 +14,7 @@ import com.saurav.sauravcaqi.databinding.AqiCityCardBinding
 import com.saurav.sauravcaqi.utils.MyUtils
 import com.saurav.sauravcaqi.utils.MyUtils.Companion.getAQIcolor
 import com.saurav.sauravcaqi.utils.MyUtils.Companion.roundOffDecimal
+import kotlin.math.min
 
 class AqiCityAdapter(private val context: Context) : RecyclerView.Adapter<AqiCityAdapter.ViewHolder>() {
   private var list = arrayListOf(RvCityUpdateItem()) // table header item.
@@ -52,7 +54,7 @@ class AqiCityAdapter(private val context: Context) : RecyclerView.Adapter<AqiCit
       
       when (foundIndex) {
         -1 -> {
-          list.add(RvCityUpdateItem(item.city, item.aqi, arrayListOf(HistoryItem(item.aqi, recentUpdate)), recentUpdate))
+          list.add(RvCityUpdateItem(item.city, item.aqi, arrayListOf(HistoryItem(item.aqi, recentUpdate), HistoryItem(item.aqi, recentUpdate - 1)), recentUpdate))
         }
         else -> {
           list[foundIndex].apply {
@@ -77,7 +79,6 @@ class AqiCityAdapter(private val context: Context) : RecyclerView.Adapter<AqiCit
         binding.tvCity.text = "City"
         binding.tvCurrentAQI.text = "Current AQI"
         binding.tvCurrentAQI.background = ContextCompat.getDrawable(context, R.drawable.bg_cell)
-        binding.tvCurrentAQI.setBackgroundColor(ContextCompat.getColor(context, R.color.teal_150))
         binding.tvLastUpdated.text = "Last Updated"
         binding.root.setBackgroundColor(ContextCompat.getColor(context, R.color.teal_150))
         binding.root.setOnClickListener {}
@@ -85,7 +86,12 @@ class AqiCityAdapter(private val context: Context) : RecyclerView.Adapter<AqiCit
         data?.run {
           binding.tvCity.text = city ?: ""
           binding.tvCurrentAQI.text = currentAQI?.let { roundOffDecimal(it) }?.toString() ?: ""
-          binding.tvCurrentAQI.setBackgroundColor(context getAQIcolor (currentAQI?.toInt() ?: 0))
+
+          val colors = past?.subList(0, min((past?.size ?: 0), 10))?.map { it -> context getAQIcolor (it.aqi?.toInt()?:0) }?.toIntArray()
+          colors?.let {
+            binding.tvCurrentAQI.background = GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, it)
+          }
+          
           binding.tvLastUpdated.text = MyUtils.lastUpdated(recentUpdate, tLastUpdated)
         }
         
