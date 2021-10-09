@@ -11,12 +11,12 @@ import com.github.mikephil.charting.components.Description
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
-import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.google.android.material.snackbar.Snackbar
 import com.saurav.sauravcaqi.R
 import com.saurav.sauravcaqi.adapter.AqiCityAdapter
 import com.saurav.sauravcaqi.bean.HistoryItem
 import com.saurav.sauravcaqi.socket.MySocketListener
+import com.saurav.sauravcaqi.utils.AQIchartXaxisFormatter
 import com.saurav.sauravcaqi.utils.Constants
 import com.saurav.sauravcaqi.utils.MyUtils.Companion.availInternet
 import com.saurav.sauravcaqi.utils.MyUtils.Companion.toast
@@ -28,6 +28,7 @@ import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.WebSocket
+
 
 class MainActivity : AppCompatActivity() {
   private val client: OkHttpClient by lazy { OkHttpClient() }
@@ -59,7 +60,13 @@ class MainActivity : AppCompatActivity() {
       description = Description().apply {
         text = "Live AQI Details for $city"
       }
+      xAxis.enableAxisLineDashedLine(15f,10f,5f)
+      xAxis.isEnabled = true
+      xAxis.labelCount = 7
+      xAxis.valueFormatter = AQIchartXaxisFormatter()
+      setTouchEnabled(false)
       setPinchZoom(false)
+      notifyDataSetChanged()
       invalidate()
     }
   }
@@ -93,12 +100,12 @@ class MainActivity : AppCompatActivity() {
         adapter?.updateList(data)
       }
     }
-  
+    
     listener?.onSocketDown = { // Failed to fetch
       lifecycleScope.launch(Main) {
         // update time stamps
         adapter?.updateList(null)
-  
+        
         // snackbar check
         if (!(dialog?.isShowing ?: false) && !availInternet() && sn?.duration != Snackbar.LENGTH_INDEFINITE) { // dialog not showing & net off & snackbar not already showing.
           sn = Snackbar.make(findViewById(android.R.id.content), "🔁 Reconnecting: Please check your Internet connection...", Snackbar.LENGTH_INDEFINITE)
@@ -106,7 +113,7 @@ class MainActivity : AppCompatActivity() {
           sn?.show()
         }
       }
-  
+      
       lifecycleScope.launch(IO) {
         delay(1000)
         webSocket = client.newWebSocket(request, listener) // re init network

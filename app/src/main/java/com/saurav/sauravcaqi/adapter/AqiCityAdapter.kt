@@ -21,7 +21,8 @@ class AqiCityAdapter(private val context: Context) : RecyclerView.Adapter<AqiCit
   private var recentUpdate = System.currentTimeMillis() / 1000
   private val TAG = "bharat"
   private var selectedIndex = -1
-  private val MAX_TIME_SERIES = 30 // items. (~ 2sec)
+  private val MAX_TIME_SERIES = 15 // items. (~ 2sec)
+  private val MAX_GRADIENT_SERIES = 5 // items. (~ 2sec)
   
   var callBack: ((item: RvCityUpdateItem?, showChart: Boolean) -> Unit)? = null
   var subscription: ((history: ArrayList<HistoryItem>?, city: String) -> Unit)? = null
@@ -87,7 +88,10 @@ class AqiCityAdapter(private val context: Context) : RecyclerView.Adapter<AqiCit
           binding.tvCity.text = city ?: ""
           binding.tvCurrentAQI.text = currentAQI?.let { roundOffDecimal(it) }?.toString() ?: ""
 
-          val colors = past?.subList(0, min((past?.size ?: 0), 10))?.map { it -> context getAQIcolor (it.aqi?.toInt()?:0) }?.toIntArray()
+          val colors = past?.subList(0, min((past?.size ?: 0), MAX_GRADIENT_SERIES))?.map{ it ->
+            context getAQIcolor (it.aqi?.toInt()?:0)
+          }?.toIntArray()
+          
           colors?.let {
             binding.tvCurrentAQI.background = GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, it)
           }
