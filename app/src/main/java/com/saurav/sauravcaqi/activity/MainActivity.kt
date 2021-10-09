@@ -25,6 +25,7 @@ import com.saurav.sauravcaqi.utils.AQIchartXaxisFormatter
 import com.saurav.sauravcaqi.utils.Constants
 import com.saurav.sauravcaqi.utils.MyUtils.Companion.availInternet
 import com.saurav.sauravcaqi.utils.MyUtils.Companion.toast
+import com.saurav.sauravcaqi.vm.AqiVM
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -33,12 +34,14 @@ import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.WebSocket
-
+import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity() {
   private val client: OkHttpClient by lazy { OkHttpClient() }
   private val TAG = "bharat"
-  private val adapter = AqiCityAdapter(this)
+  private val adapter: AqiCityAdapter by inject()
+  private val viewModel: AqiVM by viewModel()
   
   private var request: Request? = null
   private var listener: MySocketListener? = null
