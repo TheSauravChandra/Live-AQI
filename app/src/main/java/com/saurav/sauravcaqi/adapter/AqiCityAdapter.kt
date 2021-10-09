@@ -25,7 +25,7 @@ class AqiCityAdapter(private val context: Context) : RecyclerView.Adapter<AqiCit
   private val MAX_GRADIENT_SERIES = 5 // items. (~ 2sec)
   
   var callBack: ((item: RvCityUpdateItem?, showChart: Boolean) -> Unit)? = null
-  var subscription: ((history: ArrayList<HistoryItem>?, city: String) -> Unit)? = null
+  var chartValueChangeSubscription: ((history: ArrayList<HistoryItem>?, city: String) -> Unit)? = null
   
   fun updateList(incomingSocketYield: ArrayList<AQIItem>?) {
     recentUpdate = System.currentTimeMillis() / 1000
@@ -35,7 +35,7 @@ class AqiCityAdapter(private val context: Context) : RecyclerView.Adapter<AqiCit
     
     if (selectedIndex > -1 && selectedIndex < list.size)
       list[selectedIndex].apply {
-        subscription?.let { it(past, city ?: "") }
+        chartValueChangeSubscription?.let { it(past, city ?: "") }
       }
     
     notifyDataSetChanged()
@@ -115,7 +115,7 @@ class AqiCityAdapter(private val context: Context) : RecyclerView.Adapter<AqiCit
           
           if (selectedIndex > -1)
             list[selectedIndex]?.let {
-              subscription?.let { it1 -> it1(it?.past, it?.city ?: "") }
+              chartValueChangeSubscription?.let { it1 -> it1(it?.past, it?.city ?: "") }
             }
         }
       }

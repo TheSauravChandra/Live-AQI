@@ -1,3 +1,8 @@
 <resources>
   <string name="app_name">SauravC AQI</string>
+  <string name="leave_app">✘ Leave App</string>
+  <string name="goodbye_msg">"Developed by SauravC.\n with ❤️ in Bharat(India)\nhttp://sauravc.dx.am/"</string>
+  <string name="pls_turn_on_net">Please Turn ON Internet</string>
+  <string name="retry">☛ Retry</string>
+  <string name="sauravc_airqualityindex">SauravC AirQualityIndex</string>
 </resources>

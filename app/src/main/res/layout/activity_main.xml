@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
         android:fontFamily="serif-monospace"
-        android:text="SauravC AirQualityIndex"
+        android:text="@string/sauravc_airqualityindex"
         android:textColor="@color/teal_700"
         android:textSize="25dp"
         android:textStyle="bold"
