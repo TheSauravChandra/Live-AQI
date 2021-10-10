@@ -15,6 +15,8 @@ import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.mikephil.charting.components.Description
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
@@ -53,35 +55,13 @@ class MainActivity : AppCompatActivity() {
   private fun setChartUI() {
     lineChart.apply {
       // styling black background, white text & cyan (graph+legend).
-      
       description = Description().apply {
         textColor = Color.WHITE
       }
-      
-      xAxis.enableAxisLineDashedLine(15f, 10f, 5f)
-      xAxis.isEnabled = true
-      xAxis.labelCount = 7
-      xAxis.gridColor = Color.WHITE
-      xAxis.axisLineColor = Color.WHITE
-      xAxis.textColor = Color.WHITE
-      xAxis.valueFormatter = AQIchartXaxisFormatter()
-      
-      axisLeft.apply {
-        axisLineColor = Color.WHITE
-        titleColor = Color.WHITE
-        zeroLineColor = Color.WHITE
-        textColor = Color.WHITE
-      }
-      
-      axisRight.apply {
-        axisLineColor = Color.WHITE
-        titleColor = Color.WHITE
-        zeroLineColor = Color.WHITE
-        textColor = Color.WHITE
-      }
-      
+      xAxis.decorXAxis()
+      axisLeft.decorYAxis()
+      axisRight.decorYAxis()
       legend.textColor = Color.CYAN
-      
       animateXY(200, 200)
       setTouchEnabled(false)
       setPinchZoom(false)
@@ -89,6 +69,31 @@ class MainActivity : AppCompatActivity() {
       invalidate()
     }
   }
+  
+  private fun YAxis.decorYAxis() {
+    axisLineColor = Color.WHITE
+    titleColor = Color.WHITE
+    zeroLineColor = Color.WHITE
+    textColor = Color.WHITE
+  }
+  
+  private fun XAxis.decorXAxis() {
+    enableAxisLineDashedLine(15f, 10f, 5f)
+    isEnabled = true
+    labelCount = 7
+    gridColor = Color.BLACK
+    axisLineColor = Color.WHITE
+    textColor = Color.WHITE
+    valueFormatter = AQIchartXaxisFormatter()
+  }
+  
+  private fun getChartGraph(history: ArrayList<HistoryItem>?, city: String, now: Long) =
+    LineDataSet(history?.map { Entry((now - (it.t ?: now)).toFloat(), it.aqi?.toFloat() ?: 0f) } ?: emptyList(), "$city AQI")
+      .apply {
+        color = Color.CYAN
+        valueTextColor = Color.CYAN
+        titleColor = Color.CYAN
+      }
   
   private fun getAQIcolorHorizontalLines(startX: Float, endX: Float, minY: Float, maxY: Float) =
     getAllRelevantColourLines(minY, maxY).map { pair -> // 1:aqi,2:color
@@ -110,20 +115,12 @@ class MainActivity : AppCompatActivity() {
       val maxY = history?.maxByOrNull { it.aqi ?: 0.0 }?.aqi?.toFloat() ?: 0f
       val minY = history?.minByOrNull { it.aqi ?: 0.0 }?.aqi?.toFloat() ?: 0f
       
-      history?.map {
-        Entry((now - (it.t ?: now)).toFloat(), it.aqi?.toFloat() ?: 0f)
-      }?.let {
-        data = LineData(
-          LineDataSet(it, "$city AQI").apply {
-            color = Color.CYAN
-            valueTextColor = Color.CYAN
-            titleColor = Color.CYAN
-          },
-          *(getAQIcolorHorizontalLines(startX, endX, minY, maxY))
-        ).apply {
-          setValueTextColor(Color.WHITE)
-          titleColor = Color.WHITE
-        }
+      data = LineData(
+        getChartGraph(history, city, now),
+        *(getAQIcolorHorizontalLines(startX, endX, minY, maxY))
+      ).apply {
+        setValueTextColor(Color.WHITE)
+        titleColor = Color.WHITE
       }
       
       description = Description().apply {
