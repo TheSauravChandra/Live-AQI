@@ -13,6 +13,7 @@ import com.saurav.sauravcaqi.bean.RvCityUpdateItem
 import com.saurav.sauravcaqi.databinding.AqiCityCardBinding
 import com.saurav.sauravcaqi.utils.MyUtils
 import com.saurav.sauravcaqi.utils.MyUtils.Companion.getAQIcolor
+import com.saurav.sauravcaqi.utils.MyUtils.Companion.getAQIemojiMappingRes
 import com.saurav.sauravcaqi.utils.MyUtils.Companion.roundOffDecimal
 import kotlin.math.min
 
@@ -77,17 +78,17 @@ class AqiCityAdapter(private val context: Context) : RecyclerView.Adapter<AqiCit
     
     fun setData(data: RvCityUpdateItem?) {
       if (position == 0) {
-        binding.tvCity.text = "City"
-        binding.tvCurrentAQI.text = "Current AQI"
+        binding.tvCity.text = context.getString(R.string.city_header)
+        binding.tvCurrentAQI.text = context.getString(R.string.current_aqi_header)
         binding.tvCurrentAQI.textSize = 16f
         binding.tvCurrentAQI.background = ContextCompat.getDrawable(context, R.drawable.bg_cell)
-        binding.tvLastUpdated.text = "Last Updated"
+        binding.tvLastUpdated.text = context.getString(R.string.last_updated_header)
         binding.root.setBackgroundColor(ContextCompat.getColor(context, R.color.teal_150))
         binding.root.setOnClickListener {}
       } else {
         data?.run {
           binding.tvCity.text = city ?: ""
-          binding.tvCurrentAQI.text = currentAQI?.let { roundOffDecimal(it) }?.toString() ?: ""
+          binding.tvCurrentAQI.text = currentAQI?.let { getAQIemojiMappingRes(it.toInt())+" "+roundOffDecimal(it) }?: ""
           binding.tvCurrentAQI.textSize = 20f
           val colors = past?.subList(0, min((past?.size ?: 0), MAX_GRADIENT_SERIES))?.map{ it ->
             context getAQIcolor (it.aqi?.toInt()?:0)

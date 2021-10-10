@@ -56,13 +56,13 @@ class MyUtils {
     }
     
     @JvmStatic
-    fun getAQIcolourMappingRes(aqi: Int) = when {
-      aqi in 0..50 -> R.color.aqi_good
-      aqi in 51..100 -> R.color.aqi_satisfactory
-      aqi in 101..200 -> R.color.aqi_moderate
-      aqi in 201..300 -> R.color.aqi_poor
-      aqi in 301..400 -> R.color.aqi_very_poor
-      aqi in 401..500 -> R.color.aqi_severe
+    fun getAQIcolourMappingRes(aqi: Int) = when (aqi) {
+      in 0..50 -> R.color.aqi_good
+      in 51..100 -> R.color.aqi_satisfactory
+      in 101..200 -> R.color.aqi_moderate
+      in 201..300 -> R.color.aqi_poor
+      in 301..400 -> R.color.aqi_very_poor
+      in 401..500 -> R.color.aqi_severe
       else -> R.color.purple_700 // danger!
     }
     
@@ -89,6 +89,17 @@ class MyUtils {
       500f to R.color.aqi_severe
     ).filter { (it.first > (minY - 10) && it.first < (maxY + 10)) }
     // remove filter to allow all, but deviations will squeeze.
+  
+    @JvmStatic
+    fun getAQIemojiMappingRes(aqi: Int) = when (aqi) {
+      in 0..50 -> "😍"
+      in 51..100 -> "🥳"
+      in 101..200 -> "🙂"
+      in 201..300 -> "😫"
+      in 301..400 -> "🤢"
+      in 401..500 -> "☠"
+      else -> "👻"
+    }
     
   }
 }

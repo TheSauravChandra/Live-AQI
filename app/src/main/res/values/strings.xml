@@ -10,4 +10,7 @@
   <string name="info_title">⚠️ OUR EARTH IS NOT WELL</string>
   <string name="info_msg">DON\'T SLEEP 💤, SPREAD THE WORD\nAS WELL AS MONITOR THINGS WHICH YOU CAN CONTROL LOCALLY.\nTHIS INCLUDES LOCATION WHERE YOU RESIDE.\nCHECK THE SITUATION, &amp; SPREAD AWARENESS TO THE AUTHORITY!\nALSO, JUDICIOUS USE &amp; REDUCTION IS ONE SURESHOT WAY TO CONTRIBUTE.</string>
   <string name="sure">✅ SURE</string>
+  <string name="city_header">🏰 City</string>
+  <string name="last_updated_header">🕑 Last Updated</string>
+  <string name="current_aqi_header">✨ Current AQI</string>
 </resources>
