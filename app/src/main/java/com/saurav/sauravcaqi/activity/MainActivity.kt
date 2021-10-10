@@ -144,6 +144,9 @@ class MainActivity : AppCompatActivity() {
     adapter.callBack = { _, showChart ->
       manageChartShowHideAnim()
       card.visibility = if (showChart) View.VISIBLE else View.INVISIBLE
+      card.updateLayoutParams<ConstraintLayout.LayoutParams> {
+        verticalWeight = if(showChart) 1f else 0f
+      }
     }
     
     adapter.chartValueChangeSubscription = { history, city ->
@@ -157,6 +160,9 @@ class MainActivity : AppCompatActivity() {
   private fun initUI() {
     supportActionBar?.hide()
     card.visibility = View.GONE
+    card.updateLayoutParams<ConstraintLayout.LayoutParams> {
+      verticalWeight = 0f
+    }
     loading.visibility = View.VISIBLE
     
     vSpectrum.background = GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,
