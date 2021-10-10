@@ -286,9 +286,18 @@ class MainActivity : AppCompatActivity() {
   
   override fun onBackPressed() {
     if(card.isVisible){
-      adapter.removeChart()
-    } else
-    super.onBackPressed()
+      rvList.updateLayoutParams<ConstraintLayout.LayoutParams> {
+        if(verticalWeight == 0.5f){
+          verticalWeight = 2f
+        } else {
+          adapter.removeChart()
+        }
+      }
+    } else{
+      acknowledgement()
+      super.onBackPressed()
+    }
+    
   }
   
 }
