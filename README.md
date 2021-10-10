@@ -15,6 +15,7 @@ App Architecture and core logic:
 - Split Screen App support: As VM survives Config Change.(also, dark mode toggle checked.)
 - Web Socket re-establishes, hit's every 1 sec & updates list & chart of failure & shifts chronology label back.
 - Back press manages chart minize & visibility too.
+- Koin Dependency Injection used.
 - Live Changing Emoji & Shifting Gradient: give more articulate feedback to user, even when chart collapsed.
 - For Human touch, a responsible note added.
 ![Screenshot_2021-10-11-01-21-59-85_8279874d4eb854db5d1c30bc8dba05b0](https://user-images.githubusercontent.com/6492559/136711119-6e6ab94c-83b7-4267-bd4b-f9def14ee59d.jpg)
