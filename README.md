@@ -1,7 +1,17 @@
-# Live-AQI
+# SauravC Air Quality Index
+(Please use master branch for code)
 
-Implemented both functionality 1 & 2,
-within few hours of assignment of task.
-![Screenshot_2021-10-06-03-57-45-66_8279874d4eb854db5d1c30bc8dba05b0](https://user-images.githubusercontent.com/6492559/136113561-f4e9856d-733e-47d7-a4d5-dda84a612c2d.jpg)
+App Architecture and core logic:
 
-got on 5th evening, did it by 6th morning, with joy :)
+- OkHTTP3 used for web socket.
+- ViewModel persists incoming data & it's accumulated history.
+- Main Activity observes ViewModel & updates adapter,
+  adapter selection determines chart should be visible or not,
+  & which city's data stream it should show (selection)
+- Adapter's selection callback updates: chart data input stream & graph shown of city.
+- Click on Chart enlarges it & again clicking it minimizes it.
+- Split Screen App support: As VM survives Config Change.(also, dark mode toggle checked.)
+- Web Socket re-establishes, hit's every 1 sec & updates list & chart of failure & shifts chronology label back.
+- Back press manages chart minize & visibility too.
+- Live Changing Emoji & Shifting Gradient: give more articulate feedback to user, even when chart collapsed.
+- For Human touch, a responsible note added.
