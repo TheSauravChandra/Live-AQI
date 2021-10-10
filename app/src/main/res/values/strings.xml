@@ -4,7 +4,10 @@
   <string name="goodbye_msg">"Developed by SauravC.\n with ❤️ in Bharat(India)\nhttp://sauravc.dx.am/"</string>
   <string name="pls_turn_on_net">Please Turn ON Internet</string>
   <string name="retry">☛ Retry</string>
-  <string name="sauravc_airqualityindex">SauravC AirQualityIndex</string>
+  <string name="sauravc_airqualityindex">SauravC 🗣 AirQualityIndex</string>
   <string name="reconnecting">🔁 Reconnecting: Please check your Internet connection...</string>
   <string name="back_online">😍 Back Online!</string>
+  <string name="info_title">⚠️ OUR EARTH IS NOT WELL</string>
+  <string name="info_msg">DON\'T SLEEP 💤, SPREAD THE WORD\nAS WELL AS MONITOR THINGS WHICH YOU CAN CONTROL LOCALLY.\nTHIS INCLUDES LOCATION WHERE YOU RESIDE.\nCHECK THE SITUATION, &amp; SPREAD AWARENESS TO THE AUTHORITY!\nALSO, JUDICIOUS USE &amp; REDUCTION IS ONE SURESHOT WAY TO CONTRIBUTE.</string>
+  <string name="sure">✅ SURE</string>
 </resources>

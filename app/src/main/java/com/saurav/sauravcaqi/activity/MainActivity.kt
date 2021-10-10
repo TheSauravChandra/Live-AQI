@@ -11,6 +11,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -174,6 +175,10 @@ class MainActivity : AppCompatActivity() {
         verticalWeight = if (verticalWeight == 0.5f) 2f else 0.5f
       }
     }
+  
+    tvTitle.setOnClickListener {
+      showInfo()
+    }
     
   }
   
@@ -255,13 +260,35 @@ class MainActivity : AppCompatActivity() {
       setCancelable(false)
       setFinishOnTouchOutside(false)
       setNeutralButton(getString(R.string.leave_app)) { _, _ ->
-        goodbye()
+        acknowledgement()
         finish()
       }
       dialog = show()
     }
   }
   
-  private fun goodbye() = toast(getString(R.string.goodbye_msg))
+  private fun acknowledgement() = toast(getString(R.string.goodbye_msg))
+  
+  private fun showInfo() {
+    // alert to ask for net: retry or exit
+    with(AlertDialog.Builder(this))
+    {
+      setTitle(getString(R.string.info_title))
+      setMessage(getString(R.string.info_msg))
+      setPositiveButton(getString(R.string.sure)){ _, _->
+        acknowledgement()
+      }
+      setCancelable(true)
+      setFinishOnTouchOutside(false)
+      show()
+    }
+  }
+  
+  override fun onBackPressed() {
+    if(card.isVisible){
+      adapter.removeChart()
+    } else
+    super.onBackPressed()
+  }
   
 }

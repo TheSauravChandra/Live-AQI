@@ -124,6 +124,13 @@ class AqiCityAdapter(private val context: Context) : RecyclerView.Adapter<AqiCit
     }
   }
   
+  fun removeChart(){
+      if (selectedIndex != -1)
+        notifyItemChanged(selectedIndex)
+      selectedIndex = -1
+      callBack?.let { it(null, false) }
+  }
+  
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
     val binding = AqiCityCardBinding.inflate(
       LayoutInflater.from(parent.context),
