@@ -7,10 +7,10 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.saurav.sauravcaqi.R
-import com.saurav.sauravcaqi.bean.AQIItem
-import com.saurav.sauravcaqi.bean.HistoryItem
 import com.saurav.sauravcaqi.bean.RvCityUpdateItem
+import com.saurav.sauravcaqi.bean.UiBulkData
 import com.saurav.sauravcaqi.databinding.AqiCityCardBinding
+import com.saurav.sauravcaqi.utils.Constants.MAX_GRADIENT_SERIES
 import com.saurav.sauravcaqi.utils.MyUtils
 import com.saurav.sauravcaqi.utils.MyUtils.Companion.getAQIcolor
 import com.saurav.sauravcaqi.utils.MyUtils.Companion.getAQIemojiMappingRes
@@ -18,60 +18,19 @@ import com.saurav.sauravcaqi.utils.MyUtils.Companion.roundOffDecimal
 import kotlin.math.min
 
 class AqiCityAdapter(private val context: Context) : RecyclerView.Adapter<AqiCityAdapter.ViewHolder>() {
-  private var list = arrayListOf(RvCityUpdateItem()) // table header item.
+  private var list = ArrayList<RvCityUpdateItem>() // table header item.
   private var recentUpdate = System.currentTimeMillis() / 1000
   private val TAG = "bharat"
   private var selectedIndex = -1
-  private val MAX_TIME_SERIES = 15 // items. (~ 2sec)
-  private val MAX_GRADIENT_SERIES = 5 // items. (~ 2sec)
   
   var callBack: ((item: RvCityUpdateItem?, showChart: Boolean) -> Unit)? = null
-  var chartValueChangeSubscription: ((history: ArrayList<HistoryItem>?, city: String) -> Unit)? = null
   
-  fun updateList(incomingSocketYield: ArrayList<AQIItem>?) {
-    recentUpdate = System.currentTimeMillis() / 1000
-    incomingSocketYield?.let {
-      list = transformList(incomingSocketYield)
-    }
-    
-    if (selectedIndex > -1 && selectedIndex < list.size)
-      list[selectedIndex].apply {
-        chartValueChangeSubscription?.let { it(past, city ?: "") }
-      }
-    
+  fun getSelectedIndex() = selectedIndex
+  
+  fun updateList(data: UiBulkData) {
+    recentUpdate = data.recentUpdate
+    list = data.list
     notifyDataSetChanged()
-  }
-  
-  private fun transformList(items: ArrayList<AQIItem>): ArrayList<RvCityUpdateItem> {
-    val list = this.list
-    
-    items?.forEach { item -> // all incoming are made use of
-      var foundIndex = -1
-      list.forEachIndexed { index, rvCityUpdateItem ->
-        if (rvCityUpdateItem.city == item.city) {
-          foundIndex = index
-          return@forEachIndexed
-        }
-      }
-      
-      when (foundIndex) {
-        -1 -> {
-          list.add(RvCityUpdateItem(item.city, item.aqi, arrayListOf(HistoryItem(item.aqi, recentUpdate), HistoryItem(item.aqi, recentUpdate - 1)), recentUpdate))
-        }
-        else -> {
-          list[foundIndex].apply {
-            tLastUpdated = recentUpdate
-            currentAQI = item.aqi
-            past?.add(0, HistoryItem(item.aqi, recentUpdate)) // add at first.
-            if (past?.size ?: 0 > MAX_TIME_SERIES) { // when too old,
-              past?.remove(past?.last()) // each time pop 1.
-            }
-          }
-        }
-      }
-    }
-    
-    return list
   }
   
   inner class ViewHolder(var binding: AqiCityCardBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -88,10 +47,10 @@ class AqiCityAdapter(private val context: Context) : RecyclerView.Adapter<AqiCit
       } else {
         data?.run {
           binding.tvCity.text = city ?: ""
-          binding.tvCurrentAQI.text = currentAQI?.let { getAQIemojiMappingRes(it.toInt())+" "+roundOffDecimal(it) }?: ""
+          binding.tvCurrentAQI.text = currentAQI?.let { getAQIemojiMappingRes(it.toInt()) + " " + roundOffDecimal(it) } ?: ""
           binding.tvCurrentAQI.textSize = 20f
-          val colors = past?.subList(0, min((past?.size ?: 0), MAX_GRADIENT_SERIES))?.map{ it ->
-            context getAQIcolor (it.aqi?.toInt()?:0)
+          val colors = past?.subList(0, min((past?.size ?: 0), MAX_GRADIENT_SERIES))?.map { it ->
+            context getAQIcolor (it.aqi?.toInt() ?: 0)
           }?.toIntArray()
           
           colors?.let {
@@ -114,22 +73,17 @@ class AqiCityAdapter(private val context: Context) : RecyclerView.Adapter<AqiCit
           }
           notifyItemChanged(position)
           callBack?.let { it(data, selectedIndex != -1) }
-          
-          if (selectedIndex > -1)
-            list[selectedIndex]?.let {
-              chartValueChangeSubscription?.let { it1 -> it1(it?.past, it?.city ?: "") }
-            }
         }
       }
       
     }
   }
   
-  fun removeChart(){
-      if (selectedIndex != -1)
-        notifyItemChanged(selectedIndex)
-      selectedIndex = -1
-      callBack?.let { it(null, false) }
+  fun removeChart() {
+    if (selectedIndex != -1)
+      notifyItemChanged(selectedIndex)
+    selectedIndex = -1
+    callBack?.let { it(null, false) }
   }
   
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

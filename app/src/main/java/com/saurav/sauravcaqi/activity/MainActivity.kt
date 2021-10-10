@@ -142,15 +142,21 @@ class MainActivity : AppCompatActivity() {
   
   private fun initRV() {
     adapter.callBack = { _, showChart ->
+      // USER CITY CLICK(non cyclic event): select / deselect - manually / programatically
       manageChartShowHideAnim()
       card.visibility = if (showChart) View.VISIBLE else View.INVISIBLE
       card.updateLayoutParams<ConstraintLayout.LayoutParams> {
-        verticalWeight = if(showChart) 1f else 0f
+        verticalWeight = if (showChart) 1f else 0f
       }
-    }
-    
-    adapter.chartValueChangeSubscription = { history, city ->
-      listenForChartUpdate(history, city)
+      
+      // a tick / clock pulse back to the chart, on user adapter interact, non cyclic.. data still going via VM
+      viewModel.allData.value?.let { data ->
+        // send data to share.
+        if (adapter.getSelectedIndex() > -1 && adapter.getSelectedIndex() < data.list.size)
+          data.list[adapter.getSelectedIndex()].apply {
+            listenForChartUpdate(past, city ?: "")
+          }
+      }
     }
     
     rvList.adapter = adapter
@@ -181,7 +187,7 @@ class MainActivity : AppCompatActivity() {
         verticalWeight = if (verticalWeight == 0.5f) 2f else 0.5f
       }
     }
-  
+    
     tvTitle.setOnClickListener {
       showInfo()
     }
@@ -197,8 +203,6 @@ class MainActivity : AppCompatActivity() {
     viewModel.setOnSocketDownListener { // Failed to fetch
       // update UI from failed fetch
       lifecycleScope.launch(Main) {
-        // update time stamps of data to old.
-        adapter?.updateList(null)
         snackbarGoneOffline()
       }
     }
@@ -235,13 +239,15 @@ class MainActivity : AppCompatActivity() {
   }
   
   private fun initialiseWebSocket() {
-    viewModel.setValueListener { data, t ->
-      // updating list!
-      lifecycleScope.launch(Main) {
-        hideLoadingIfVisible()
-        adapter?.updateList(data)
-      }
-    }
+    viewModel.allData.observe(this@MainActivity, { data ->
+      hideLoadingIfVisible()
+      adapter?.updateList(data)
+      // send data to share to chart, VM->chart, with adapter select interception & routing data stream. cyclic.
+      if (adapter.getSelectedIndex() > -1 && adapter.getSelectedIndex() < data.list.size)
+        data.list[adapter.getSelectedIndex()].apply {
+          listenForChartUpdate(past, city ?: "")
+        }
+    })
     handleSocketDown()
     handleSocketLiveAgain()
     // starting the fun.. :)
@@ -281,7 +287,7 @@ class MainActivity : AppCompatActivity() {
     {
       setTitle(getString(R.string.info_title))
       setMessage(getString(R.string.info_msg))
-      setPositiveButton(getString(R.string.sure)){ _, _->
+      setPositiveButton(getString(R.string.sure)) { _, _ ->
         acknowledgement()
       }
       setCancelable(true)
@@ -291,15 +297,15 @@ class MainActivity : AppCompatActivity() {
   }
   
   override fun onBackPressed() {
-    if(card.isVisible){
+    if (card.isVisible) {
       rvList.updateLayoutParams<ConstraintLayout.LayoutParams> {
-        if(verticalWeight == 0.5f){
+        if (verticalWeight == 0.5f) {
           verticalWeight = 2f
         } else {
           adapter.removeChart()
         }
       }
-    } else{
+    } else {
       acknowledgement()
       super.onBackPressed()
     }
