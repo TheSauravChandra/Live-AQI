@@ -24,6 +24,7 @@ import com.saurav.sauravcaqi.adapter.AqiCityAdapter
 import com.saurav.sauravcaqi.bean.HistoryItem
 import com.saurav.sauravcaqi.utils.AQIchartXaxisFormatter
 import com.saurav.sauravcaqi.utils.MyUtils.Companion.availInternet
+import com.saurav.sauravcaqi.utils.MyUtils.Companion.getAllRelevantColourLines
 import com.saurav.sauravcaqi.utils.MyUtils.Companion.toast
 import com.saurav.sauravcaqi.vm.AqiVM
 import kotlinx.android.synthetic.main.activity_main.*
@@ -89,17 +90,37 @@ class MainActivity : AppCompatActivity() {
     }
   }
   
+  private fun getAQIcolorHorizontalLines(startX: Float, endX: Float, minY: Float, maxY: Float) =
+    getAllRelevantColourLines(minY, maxY).map { pair -> // 1:aqi,2:color
+      LineDataSet(listOf(Entry(startX, pair.first), Entry(endX, pair.first)), null).apply {
+        ContextCompat.getColor(this@MainActivity, pair.second).let {
+          color = it
+          valueTextColor = it
+          titleColor = it
+        }
+      }
+    }.toTypedArray()
+  
   private fun listenForChartUpdate(history: ArrayList<HistoryItem>?, city: String) {
     lineChart.apply {
       val now = System.currentTimeMillis() / 1000
+      val startX = 0f
+      val endX = history?.last().let { (now - (it?.t ?: now)).toFloat() } ?: 0f
+      
+      val maxY = history?.maxByOrNull { it.aqi ?: 0.0 }?.aqi?.toFloat() ?: 0f
+      val minY = history?.minByOrNull { it.aqi ?: 0.0 }?.aqi?.toFloat() ?: 0f
+      
       history?.map {
         Entry((now - (it.t ?: now)).toFloat(), it.aqi?.toFloat() ?: 0f)
       }?.let {
-        data = LineData(LineDataSet(it, "$city AQI").apply {
-          color = Color.CYAN
-          valueTextColor = Color.CYAN
-          titleColor = Color.CYAN
-        }).apply {
+        data = LineData(
+          LineDataSet(it, "$city AQI").apply {
+            color = Color.CYAN
+            valueTextColor = Color.CYAN
+            titleColor = Color.CYAN
+          },
+          *(getAQIcolorHorizontalLines(startX, endX, minY, maxY))
+        ).apply {
           setValueTextColor(Color.WHITE)
           titleColor = Color.WHITE
         }
@@ -153,7 +174,7 @@ class MainActivity : AppCompatActivity() {
     
     card.setOnClickListener {
       rvList.updateLayoutParams<ConstraintLayout.LayoutParams> {
-          verticalWeight = if(verticalWeight==0.5f) 2f else 0.5f
+        verticalWeight = if (verticalWeight == 0.5f) 2f else 0.5f
       }
     }
     
