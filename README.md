@@ -1,4 +1,5 @@
 # SauravC Air Quality Index
+APK: https://github.com/TheSauravChandra/Live-AQI/blob/master/app/release/app-release.apk?raw=true
 (Please use master branch for code)
 
 App Architecture and core logic:
