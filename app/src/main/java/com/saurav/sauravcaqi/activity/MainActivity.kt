@@ -9,7 +9,9 @@ import android.transition.TransitionManager
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.mikephil.charting.components.Description
@@ -29,6 +31,7 @@ import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
+
 
 class MainActivity : AppCompatActivity() {
   private val TAG = "bharat"
@@ -147,6 +150,12 @@ class MainActivity : AppCompatActivity() {
         R.color.aqi_severe
       ).map { ContextCompat.getColor(this, it) }.toIntArray()
     )
+    
+    card.setOnClickListener {
+      rvList.updateLayoutParams<ConstraintLayout.LayoutParams> {
+          verticalWeight = if(verticalWeight==0.5f) 2f else 0.5f
+      }
+    }
     
   }
   

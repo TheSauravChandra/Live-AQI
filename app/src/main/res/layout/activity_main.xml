@@ -35,9 +35,10 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvList"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_marginHorizontal="5dp"
-        android:layout_marginTop="20dp"
+        app:layout_constraintVertical_weight="2"
+        app:layout_constraintBottom_toTopOf="@id/card"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/vSpectrum" />
@@ -49,6 +50,7 @@
         android:layout_height="0dp"
         android:layout_margin="5dp"
         android:visibility="gone"
+        app:layout_constraintVertical_weight="1"
         app:cardBackgroundColor="@color/black"
         app:cardCornerRadius="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -59,6 +61,7 @@
       
       <com.github.mikephil.charting.charts.LineChart
           android:id="@+id/lineChart"
+          android:clickable="false"
           android:layout_width="match_parent"
           android:layout_height="match_parent"
           android:layout_margin="5dp"
