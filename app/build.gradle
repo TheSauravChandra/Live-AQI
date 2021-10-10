@@ -68,9 +68,6 @@ dependencies {
     // gson - parsing
     implementation 'com.google.code.gson:gson:2.8.7'
 
-    // shimmer
-    implementation 'com.facebook.shimmer:shimmer:0.5.0@aar'
-
     // koin di
     implementation "org.koin:koin-androidx-viewmodel:2.0.1"
     implementation "org.koin:koin-android:2.0.1"
