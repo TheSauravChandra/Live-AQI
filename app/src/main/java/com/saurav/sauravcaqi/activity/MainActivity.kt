@@ -20,32 +20,20 @@ import com.google.android.material.snackbar.Snackbar
 import com.saurav.sauravcaqi.R
 import com.saurav.sauravcaqi.adapter.AqiCityAdapter
 import com.saurav.sauravcaqi.bean.HistoryItem
-import com.saurav.sauravcaqi.socket.MySocketListener
 import com.saurav.sauravcaqi.utils.AQIchartXaxisFormatter
-import com.saurav.sauravcaqi.utils.Constants
 import com.saurav.sauravcaqi.utils.MyUtils.Companion.availInternet
 import com.saurav.sauravcaqi.utils.MyUtils.Companion.toast
 import com.saurav.sauravcaqi.vm.AqiVM
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.WebSocket
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity() {
-  private val client: OkHttpClient by lazy { OkHttpClient() }
   private val TAG = "bharat"
   private val adapter: AqiCityAdapter by inject()
   private val viewModel: AqiVM by viewModel()
-  
-  private var request: Request? = null
-  private var listener: MySocketListener? = null
-  private var webSocket: WebSocket? = null
   private var sn: Snackbar? = null
   private var dialog: AlertDialog? = null
   
@@ -168,37 +156,38 @@ class MainActivity : AppCompatActivity() {
   }
   
   private fun handleSocketDown() {
-    listener?.onSocketDown = { // Failed to fetch
+    viewModel.setOnSocketDownListener { // Failed to fetch
       // update UI from failed fetch
       lifecycleScope.launch(Main) {
         // update time stamps of data to old.
         adapter?.updateList(null)
-        
-        // snackbar for "gone offline".
-        if (!(dialog?.isShowing ?: false) && !availInternet() && sn?.duration != Snackbar.LENGTH_INDEFINITE) { // dialog not showing & net off & snackbar not already showing.
-          sn = Snackbar.make(findViewById(android.R.id.content), "🔁 Reconnecting: Please check your Internet connection...", Snackbar.LENGTH_INDEFINITE)
-          sn?.view?.setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.aqi_moderate))
-          sn?.show()
-        }
-      }
-      
-      // retry establishing network
-      lifecycleScope.launch(IO) {
-        delay(1000)
-        webSocket = client.newWebSocket(request, listener) // re init network
+        snackbarGoneOffline()
       }
     }
   }
   
+  private fun snackbarGoneOffline() {
+    // dialog not showing & net off & snackbar not already showing.
+    if (!(dialog?.isShowing ?: false) && !availInternet() && sn?.duration != Snackbar.LENGTH_INDEFINITE) {
+      sn = Snackbar.make(findViewById(android.R.id.content), getString(R.string.reconnecting), Snackbar.LENGTH_INDEFINITE)
+      sn?.view?.setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.aqi_moderate))
+      sn?.show()
+    }
+  }
+  
+  private fun snackbarBackOnline() {
+    sn = Snackbar.make(findViewById(android.R.id.content), getString(R.string.back_online), Snackbar.LENGTH_SHORT)
+    sn?.view?.setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.aqi_good))
+    sn?.show()
+  }
+  
   private fun handleSocketLiveAgain() {
-    listener?.uponSocketLiveAgain = { // connection revive.
+    viewModel.setUponSocketLiveAgainListener { // connection revive.
       lifecycleScope.launch(Main) {
-        // back online! (when using app & net went off)
-        sn?.dismiss()
+        sn?.dismiss() // dismiss offline snackbar, if present (while running app if went offline)
         if (sn != null) {
-          sn = Snackbar.make(findViewById(android.R.id.content), "😍 Back Online!", Snackbar.LENGTH_SHORT)
-          sn?.view?.setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.aqi_good))
-          sn?.show()
+          // back online! (when using app & net went off)
+          snackbarBackOnline()
         } else {
           // (when started the app & found net off)
           dialog?.cancel()
@@ -208,8 +197,7 @@ class MainActivity : AppCompatActivity() {
   }
   
   private fun initialiseWebSocket() {
-    request = Request.Builder().url(Constants.WEB_SOCKET_URL).build()
-    listener = MySocketListener { data, t ->
+    viewModel.setValueListener { data, t ->
       // updating list!
       lifecycleScope.launch(Main) {
         hideLoadingIfVisible()
@@ -226,10 +214,7 @@ class MainActivity : AppCompatActivity() {
     if (!availInternet()) {
       askTurnOnInternet()
     }
-    
-    if (webSocket == null) { // auto polling for net.
-      webSocket = client.newWebSocket(request, listener)
-    }
+    viewModel.startAppNtwHandling()
   }
   
   private fun askTurnOnInternet() {
@@ -237,7 +222,7 @@ class MainActivity : AppCompatActivity() {
     with(AlertDialog.Builder(this))
     {
       setTitle(getString(R.string.pls_turn_on_net))
-      setPositiveButton(getString(R.string.retry)) { p0, p1 ->
+      setPositiveButton(getString(R.string.retry)) { _, _ ->
         initNtwConnection()
       }
       setCancelable(false)

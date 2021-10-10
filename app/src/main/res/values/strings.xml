@@ -5,4 +5,6 @@
   <string name="pls_turn_on_net">Please Turn ON Internet</string>
   <string name="retry">☛ Retry</string>
   <string name="sauravc_airqualityindex">SauravC AirQualityIndex</string>
+  <string name="reconnecting">🔁 Reconnecting: Please check your Internet connection...</string>
+  <string name="back_online">😍 Back Online!</string>
 </resources>

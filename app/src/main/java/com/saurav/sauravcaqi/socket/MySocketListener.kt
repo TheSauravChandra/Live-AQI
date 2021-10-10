@@ -15,6 +15,7 @@ class MySocketListener(private val cb: (data: ArrayList<AQIItem>?, t: Long) -> U
   private val TAG = "bharat"
   var uponSocketLiveAgain = {}
   var onSocketDown = {}
+  var attemptRestart = {}
   
   private fun sendBackData(data: String?) {
     data?.let {
@@ -49,11 +50,13 @@ class MySocketListener(private val cb: (data: ArrayList<AQIItem>?, t: Long) -> U
   override fun onClosed(webSocket: WebSocket?, code: Int, reason: String?) {
     super.onClosed(webSocket, code, reason)
     onSocketDown()
+    attemptRestart()
   }
   
   override fun onFailure(webSocket: WebSocket?, t: Throwable?, response: Response?) {
     super.onFailure(webSocket, t, response)
     onSocketDown()
+    attemptRestart()
   }
   
   override fun onOpen(webSocket: WebSocket?, response: Response?) {
