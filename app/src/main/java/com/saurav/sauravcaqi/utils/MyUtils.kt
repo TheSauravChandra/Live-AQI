@@ -30,25 +30,22 @@ class MyUtils {
     }
     
     @JvmStatic
-    fun lastUpdated(tNowSec: Long, tLastSec: Long?): String { // in seconds,  val now = System.currentTimeMillis()
-      return when {
-        tLastSec == null -> { // never updated.
-          " --- "
-        }
-        (tNowSec - tLastSec) < 60 -> {
-          "A few seconds ago"
-        }
-        (tNowSec - tLastSec) > 60 && (tNowSec - tLastSec) < (60 * 2) -> {
-          "A minute ago"
-        }
-        else -> {
-          val sdf = SimpleDateFormat("hh:mm a")
-          sdf.timeZone = TimeZone.getTimeZone("IST").apply {
-            rawOffset = (5 * 60 + 30) * 60 * 1000 // +5:30 GMT Delhi
-          }
-          sdf.format(Date(tLastSec * 1000))
-        }
+    fun lastUpdated(tNowSec: Long, tLastSec: Long?): String { // in seconds,
+      if (tLastSec == null)
+        return " --- "
+      
+      if ((tNowSec - tLastSec) < 60)
+        return "A few seconds ago"
+      
+      if ((tNowSec - tLastSec) > 60 && (tNowSec - tLastSec) < (60 * 2))
+        return "A minute ago"
+      
+      val sdf = SimpleDateFormat("hh:mm a")
+      sdf.timeZone = TimeZone.getTimeZone("IST").apply {
+        rawOffset = (5 * 60 + 30) * 60 * 1000 // +5:30 GMT Delhi
       }
+      
+      return sdf.format(Date(tLastSec * 1000))
       
     }
     
