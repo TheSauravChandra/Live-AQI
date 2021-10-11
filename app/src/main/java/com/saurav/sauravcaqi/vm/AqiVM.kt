@@ -65,6 +65,14 @@ class AqiVM(private val client: OkHttpClient) : ViewModel() {
     createNewWebSocket()
   }
   
+  fun checkAndRestartIfKilled() {
+    // when stops in background
+    if (recentUpdate + 60 < (System.currentTimeMillis() / 1000)) {
+      onSocketDown()
+      createNewWebSocket()
+    }
+  }
+  
   private fun createNewWebSocket() {
     webSocket = client.newWebSocket(request, listener)
   }

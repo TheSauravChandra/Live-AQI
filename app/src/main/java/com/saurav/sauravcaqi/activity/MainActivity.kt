@@ -238,6 +238,11 @@ class MainActivity : AppCompatActivity() {
     }
   }
   
+  override fun onResume() {
+    super.onResume()
+    viewModel.checkAndRestartIfKilled()
+  }
+  
   private fun initialiseWebSocket() {
     viewModel.allData.observe(this@MainActivity, { data ->
       hideLoadingIfVisible()
